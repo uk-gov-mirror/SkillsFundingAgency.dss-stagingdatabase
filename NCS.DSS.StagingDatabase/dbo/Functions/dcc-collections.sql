@@ -1,7 +1,7 @@
 ﻿CREATE FUNCTION [dbo].[dcc-collections](@touchpointId VARCHAR(10), @startDate DATE, @endDate DATE)
 
 RETURNS @Result TABLE(CustomerID UNIQUEIDENTIFIER, DateOfBirth DATE, HomePostCode VARCHAR(10), 
-                                        ActionPlanId UNIQUEIDENTIFIER, SessionDate DATE, --SubContractorId VARCHAR(50) , 
+                                        ActionPlanId UNIQUEIDENTIFIER, SessionDate DATE, SubContractorId VARCHAR(50), 
                                         AdviserName VARCHAR(100), OutcomeId UNIQUEIDENTIFIER,
                                         OutcomeType INT, OutcomeEffectiveDate DATE, OutcomePriorityCustomer INT)
 
@@ -23,7 +23,7 @@ INSERT INTO @Result
 	  HomePostCode,
 	  ActionPlanId,
 	  SessionDate,
-	--  SubContractorId,
+      SubContractorId,
 	  AdviserName,
 	  OutcomeId,
 	  OutcomeType,
@@ -82,7 +82,7 @@ INSERT INTO @Result
 			(
 			  -- if sustained employment check that there are no other outcomes of the same type in the last 13 months
 			  o.OutcomeType = 3 -- sustained employment
-			  AND priorO.OutcomeEffectiveDate >= DATEADD(mm, -13, o.OutcomeEffectiveDate)
+			  AND priorO.OutcomeEffectiveDate >= DATEADD(mm, -12, o.OutcomeEffectiveDate)
 			  AND priorO.OutcomeEffectiveDate < o.OutcomeEffectiveDate
 			)
 			OR (
