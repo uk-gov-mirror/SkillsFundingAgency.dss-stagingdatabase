@@ -10,7 +10,7 @@ AS
 BEGIN  
 
 DECLARE @endDateTime DATETIME2		-- date and time the period ends.
-SET		@endDateTime = DATEADD(MS, -1, DATEADD(D, 1, CONVERT(DATETIME2,@endDate)));  --This is to ensure that any outcomes claimed or effice on the last day of the period gets included.
+SET		@endDateTime = @endDate;--DATEADD(MS, -1, DATEADD(D, 1, CONVERT(DATETIME2,@endDate)));  --This is to ensure that any outcomes claimed or effice on the last day of the period gets included.
 
 -- used to get latest address
 DECLARE	@today DATE;
@@ -51,8 +51,7 @@ INSERT INTO @Result
 			  INNER JOIN [dss-actionplans] ap ON ap.id = o.ActionPlanId
 			  INNER JOIN [dss-sessions] s ON s.id = ap.SessionId
 			  INNER JOIN [dss-interactions] i ON i.id = ap.InteractionId
-			  LEFT JOIN [dss-addresses] a ON a.CustomerId = o.CustomerId
-		/*	  OUTER APPLY (
+			  OUTER APPLY (
 			SELECT
 				TOP 1 PostCode
 			FROM
@@ -61,7 +60,7 @@ INSERT INTO @Result
 				a.CustomerId = o.CustomerId -- Get the latest address for the customer record
 				AND @today BETWEEN ISNULL(a.EffectiveFrom, DATEADD(dd, -1, @today))
 				AND ISNULL(a.EffectiveTo, DATEADD(dd, 1, @today))
-			) AS a*/
+			) AS a
 			  LEFT JOIN [dss-adviserdetails] adv ON adv.id = i.AdviserDetailsId -- join to get adviser details
 			WHERE
 			  o.OutcomeEffectiveDate BETWEEN @startDate
