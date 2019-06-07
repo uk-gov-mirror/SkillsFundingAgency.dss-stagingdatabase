@@ -10,7 +10,7 @@ AS
 BEGIN  
 
 DECLARE @endDateTime DATETIME2		-- date and time the period ends.
-SET		@endDateTime = @endDate;--DATEADD(MS, -1, DATEADD(D, 1, CONVERT(DATETIME2,@endDate)));  --This is to ensure that any outcomes claimed or effice on the last day of the period gets included.
+SET		@endDateTime = DATEADD(MS, -1, DATEADD(D, 1, CONVERT(DATETIME2,@endDate)));  --This is to ensure that any outcomes claimed or effice on the last day of the period gets included.
 
 -- used to get latest address
 DECLARE	@today DATE;
@@ -23,7 +23,7 @@ INSERT INTO @Result
 	  HomePostCode,
 	  ActionPlanId,
 	  SessionDate,
-	  SubContractorId,
+	--  SubContractorId,
 	  AdviserName,
 	  OutcomeId,
 	  OutcomeType,
