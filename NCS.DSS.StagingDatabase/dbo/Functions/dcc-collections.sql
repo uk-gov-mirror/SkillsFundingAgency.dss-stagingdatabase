@@ -44,7 +44,7 @@ INSERT INTO @Result
 			  o.OutcomeEffectiveDate AS 'OutcomeEffectiveDate',
 			  IIF (o.ClaimedPriorityGroup < 99, 1, 0) AS 'OutcomePriorityCustomer',
 			  o.OutcomeClaimedDate,
-			  RANK() OVER(PARTITION BY o.CustomerId, IIF (o.OutcomeType < 3, o.OutcomeType, 3) ORDER BY o.OutcomeEffectiveDate, o.LastModifiedDate, o.id) AS 'Rank'
+			  RANK() OVER(PARTITION BY o.CustomerId, IIF (o.OutcomeType < 2, o.OutcomeType, 3) ORDER BY o.OutcomeEffectiveDate, o.LastModifiedDate, o.id) AS 'Rank'
 		FROM
 			  [dss-outcomes] o
 			  INNER JOIN [dss-customers] c ON c.id = o.CustomerId
