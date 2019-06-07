@@ -44,14 +44,15 @@ INSERT INTO @Result
 			  o.OutcomeEffectiveDate AS 'OutcomeEffectiveDate',
 			  IIF (o.ClaimedPriorityGroup < 99, 1, 0) AS 'OutcomePriorityCustomer',
 			  o.OutcomeClaimedDate,
-			  RANK() OVER(PARTITION BY o.CustomerId, IIF (o.OutcomeType < 2, o.OutcomeType, 3) ORDER BY o.OutcomeEffectiveDate, o.LastModifiedDate, o.id) AS 'Rank'
+			  RANK() OVER(PARTITION BY o.CustomerId, IIF (o.OutcomeType < 3, o.OutcomeType, 3) ORDER BY o.OutcomeEffectiveDate, o.LastModifiedDate, o.id) AS 'Rank'
 		FROM
 			  [dss-outcomes] o
 			  INNER JOIN [dss-customers] c ON c.id = o.CustomerId
 			  INNER JOIN [dss-actionplans] ap ON ap.id = o.ActionPlanId
 			  INNER JOIN [dss-sessions] s ON s.id = ap.SessionId
 			  INNER JOIN [dss-interactions] i ON i.id = ap.InteractionId
-			  OUTER APPLY (
+			  LEFT JOIN [dss-addresses] a ON a.CustomerId = o.CustomerId
+		/*	  OUTER APPLY (
 			SELECT
 				TOP 1 PostCode
 			FROM
@@ -60,7 +61,7 @@ INSERT INTO @Result
 				a.CustomerId = o.CustomerId -- Get the latest address for the customer record
 				AND @today BETWEEN ISNULL(a.EffectiveFrom, DATEADD(dd, -1, @today))
 				AND ISNULL(a.EffectiveTo, DATEADD(dd, 1, @today))
-			) AS a
+			) AS a*/
 			  LEFT JOIN [dss-adviserdetails] adv ON adv.id = i.AdviserDetailsId -- join to get adviser details
 			WHERE
 			  o.OutcomeEffectiveDate BETWEEN @startDate
