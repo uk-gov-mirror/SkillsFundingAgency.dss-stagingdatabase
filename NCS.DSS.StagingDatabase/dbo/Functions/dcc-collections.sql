@@ -82,7 +82,7 @@ INSERT INTO @Result
 			(
 			  -- if sustained employment check that there are no other outcomes of the same type in the last 13 months
 			  o.OutcomeType = 3 -- sustained employment
-			  AND priorO.OutcomeEffectiveDate >= DATEADD(mm, -12, o.OutcomeEffectiveDate)
+			  AND priorO.OutcomeEffectiveDate >= DATEADD(mm, -13, o.OutcomeEffectiveDate)
 			  AND priorO.OutcomeEffectiveDate < o.OutcomeEffectiveDate
 			)
 			OR (
@@ -108,7 +108,7 @@ INSERT INTO @Result
 		  AND priorO.OutcomeClaimedDate IS NOT NULL -- and claimed
 		  AND priorO.CustomerId = o.CustomerId -- and they belong to the same customer
 		  AND priorO.id <> o.OutcomeID -- and are not the same ID
-		  AND priorO.TouchpointId <> '0000000999' -- and touchpoint is not helpline
+		 -- AND priorO.TouchpointId <> '0000000999' -- and touchpoint is not helpline
 	  ) 
 
   RETURN 
