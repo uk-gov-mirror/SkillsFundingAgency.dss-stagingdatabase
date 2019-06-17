@@ -44,7 +44,8 @@ BEGIN
 						 [IntroducedBy] [VARCHAR](MAX) NULL,
 						 [IntroducedByAdditionalInfo] [VARCHAR](MAX) NULL,
 						 [LastModifiedDate] [VARCHAR](MAX) NULL,
-						 [LastModifiedTouchpointId] [VARCHAR](MAX) NULL
+						 [LastModifiedTouchpointId] [VARCHAR](MAX) NULL,
+						 [CreatedBy] [varchar](max) NULL
 			) ON [PRIMARY]									
 		END
 
@@ -68,7 +69,8 @@ BEGIN
 			IntroducedBy VARCHAR(MAX) '$.IntroducedBy',
 			IntroducedByAdditionalInfo VARCHAR(MAX) '$.IntroducedByAdditionalInfo',
 			LastModifiedDate VARCHAR(MAX) '$.LastModifiedDate',
-			LastModifiedTouchpointId VARCHAR(MAX) '$.LastModifiedTouchpointId'
+			LastModifiedTouchpointId VARCHAR(MAX) '$.LastModifiedTouchpointId',
+			CreatedBy VARCHAR(MAX) '$.CreatedBy'
 			) AS Coll
 
 	IF OBJECT_ID('[dss-customers]', 'U') IS NOT NULL 
@@ -95,6 +97,7 @@ BEGIN
 						 [IntroducedByAdditionalInfo] [VARCHAR](MAX) NULL,
 						 [LastModifiedDate] DATETIME2 NULL,
 						 [LastModifiedTouchpointId] [VARCHAR](MAX) NULL,
+						 [CreatedBy] [VARCHAR](MAX) NULL,
 						 CONSTRAINT [PK_dss-customers] PRIMARY KEY ([id])) 
 						 ON [PRIMARY]	
 		END
@@ -117,7 +120,8 @@ BEGIN
 				CONVERT(int, [IntroducedBy]) as [IntroducedBy],
 				[IntroducedByAdditionalInfo],
 				CONVERT(datetime2, [LastModifiedDate]) as [LastModifiedDate],
-				[LastModifiedTouchpointId]
+				[LastModifiedTouchpointId],
+				[CreatedBy]
 				FROM #customers
 
 		DROP TABLE #customers

@@ -22,6 +22,7 @@ BEGIN
 				,IntroducedByAdditionalInfo VARCHAR(Max)
 				,LastModifiedDate DATETIME2
 				,LastModifiedTouchpointId VARCHAR(max)
+				,CreatedBy VARCHAR(MAX)
 				)
 		) AS InputJSON
 		ON (customers.id = InputJSON.id)
@@ -45,6 +46,7 @@ BEGIN
 				,customers.IntroducedByAdditionalInfo = InputJSON.IntroducedByAdditionalInfo
 				,customers.LastModifiedDate = InputJSON.LastModifiedDate
 				,customers.LastModifiedTouchpointId = InputJSON.LastModifiedTouchpointId
+				,customers.CreatedBy = InputJSON.CreatedBy
 	WHEN NOT MATCHED
 		THEN
 			INSERT (
@@ -65,6 +67,7 @@ BEGIN
 				,IntroducedByAdditionalInfo
 				,LastModifiedDate
 				,LastModifiedTouchpointId
+				,CreatedBy
 				)
 			VALUES (
 				InputJSON.id
@@ -84,6 +87,7 @@ BEGIN
 				,InputJSON.IntroducedByAdditionalInfo
 				,InputJSON.LastModifiedDate
 				,InputJSON.LastModifiedTouchpointId
+				,InputJSON.CreatedBy
 				);
 
 	exec [dbo].[insert-dss-customers-history] @Json

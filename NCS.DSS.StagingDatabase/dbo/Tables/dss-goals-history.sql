@@ -13,6 +13,7 @@
 	[GoalStatus] [int] NULL,
 	[LastModifiedDate] [datetime2](7) NULL,
 	[LastModifiedBy] [varchar](max) NULL,
+	[CreatedBy]	[varchar](max) NULL,
  CONSTRAINT [PK_dss-goals-history] PRIMARY KEY CLUSTERED 
 (
 	[HistoryId] ASC,

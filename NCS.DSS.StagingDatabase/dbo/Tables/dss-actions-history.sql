@@ -15,6 +15,7 @@
 	[PersonResponsible] [int] NULL,
 	[LastModifiedDate] [varchar](max) NULL,
 	[LastModifiedTouchpointId] [varchar](max) NULL,
+	[CreatedBy]	[varchar](max) NULL,
  CONSTRAINT [PK_dss-actions-history] PRIMARY KEY CLUSTERED 
 (
 	[HistoryId] ASC,

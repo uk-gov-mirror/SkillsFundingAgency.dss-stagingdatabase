@@ -43,7 +43,8 @@ BEGIN
 						 [EffectiveFrom] [VARCHAR](MAX) NULL,
 						 [EffectiveTo] [VARCHAR](MAX) NULL,
 						 [LastModifiedDate] [VARCHAR](MAX) NULL,
-						 [LastModifiedTouchpointId] [VARCHAR](MAX) NULL
+						 [LastModifiedTouchpointId] [VARCHAR](MAX) NULL,
+						 [CreatedBy] [varchar](max) NULL
 			) ON [PRIMARY]									
 		END
 
@@ -66,7 +67,8 @@ BEGIN
 			EffectiveFrom VARCHAR(MAX) '$.EffectiveFrom',
 			EffectiveTo VARCHAR(MAX) '$.EffectiveTo',
 			LastModifiedDate VARCHAR(MAX) '$.LastModifiedDate',
-			LastModifiedTouchpointId VARCHAR(MAX) '$.LastModifiedTouchpointId'
+			LastModifiedTouchpointId VARCHAR(MAX) '$.LastModifiedTouchpointId',
+			CreatedBy VARCHAR(MAX) '$.CreatedBy'
 			) AS Coll
 
 
@@ -94,7 +96,8 @@ BEGIN
 						 [EffectiveFrom] DATETIME2 NULL,
 						 [EffectiveTo] DATETIME2 NULL,
 						 [LastModifiedDate] DATETIME2 NULL,
-						 [LastModifiedTouchpointId] [VARCHAR](MAX),						 
+						 [LastModifiedTouchpointId] [VARCHAR](MAX),
+						 [CreatedBy] [VARCHAR](MAX) NULL,
 						 CONSTRAINT [PK_dss-addresses] PRIMARY KEY ([id])) 
 						 ON [PRIMARY]							
 		END
@@ -116,7 +119,8 @@ BEGIN
 				CONVERT(datetime2, [EffectiveFrom]) as [EffectiveFrom],
 				CONVERT(datetime2, [EffectiveTo]) as [EffectiveTo],
 				CONVERT(datetime2, [LastModifiedDate]) as [LastModifiedDate],
-				[LastModifiedTouchpointId]
+				[LastModifiedTouchpointId],
+				[CreatedBy]
 				FROM #addresses
 
 		DROP TABLE #addresses

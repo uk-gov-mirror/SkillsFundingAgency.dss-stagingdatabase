@@ -3,7 +3,7 @@ AS
 BEGIN
 	INSERT INTO [dss-actions-history]
 	SELECT DATEADD(MINUTE, _ts/60, DATEADD(SECOND, _ts%60, '19700101')) as CosmosTimeStamp, id, CustomerId, ActionPlanId, SubcontractorId, DateActionAgreed, DateActionAimsToBeCompletedBy,
-		   DateActionActuallyCompleted, ActionSummary, SignpostedTo, ActionType, ActionStatus, PersonResponsible, LastModifiedDate, LastModifiedTouchpointId
+		   DateActionActuallyCompleted, ActionSummary, SignpostedTo, ActionType, ActionStatus, PersonResponsible, LastModifiedDate, LastModifiedTouchpointId, CreatedBy
 		FROM OPENJSON(@Json) WITH (
 		        _ts BIGINT
 				,id UNIQUEIDENTIFIER
@@ -20,5 +20,6 @@ BEGIN
 				,PersonResponsible INT
 				,LastModifiedDate DATETIME2
 				,LastModifiedTouchpointId VARCHAR(max)
+				,CreatedBy VARCHAR(MAX)
 				)
 END

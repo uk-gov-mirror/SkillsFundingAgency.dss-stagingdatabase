@@ -6,6 +6,7 @@
     [AdviserContactNumber]     VARCHAR (max)     NULL,
     [LastModifiedDate]         datetime2         NULL,
     [LastModifiedTouchpointId] VARCHAR (max)     NULL, 
+	[CreatedBy]				   VARCHAR (max)     NULL, 
     CONSTRAINT [PK_dss-adviserdetails] PRIMARY KEY ([id])
 );
 

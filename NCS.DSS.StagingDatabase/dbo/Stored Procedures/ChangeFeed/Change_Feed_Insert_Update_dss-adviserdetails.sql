@@ -12,6 +12,7 @@ BEGIN
 				,AdviserContactNumber VARCHAR(max)
 				,LastModifiedDate DATETIME2
 				,LastModifiedTouchpointId VARCHAR(max)
+				,CreatedBy VARCHAR(MAX)
 				)
 		) AS InputJSON
 		ON (adviserdetails.id = InputJSON.id)
@@ -25,6 +26,7 @@ BEGIN
 				,adviserdetails.AdviserContactNumber = InputJSON.AdviserContactNumber
 				,adviserdetails.LastModifiedDate = InputJSON.LastModifiedDate
 				,adviserdetails.LastModifiedTouchpointId = InputJSON.LastModifiedTouchpointId
+				,adviserdetails.CreatedBy = InputJSON.CreatedBy
 	WHEN NOT MATCHED
 		THEN
 			INSERT (
@@ -35,6 +37,7 @@ BEGIN
 				,AdviserContactNumber
 				,LastModifiedDate
 				,LastModifiedTouchpointId
+				,CreatedBy
 				)
 			VALUES (
 				InputJSON.id
@@ -44,6 +47,7 @@ BEGIN
 				,InputJSON.AdviserContactNumber
 				,InputJSON.LastModifiedDate
 				,InputJSON.LastModifiedTouchpointId
+				,InputJSON.CreatedBy
 				);
 
 	exec [insert-dss-adviserdetails-history] @Json

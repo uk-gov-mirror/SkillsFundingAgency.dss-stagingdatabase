@@ -34,7 +34,8 @@ BEGIN
 						 [AdviserEmailAddress] [VARCHAR](MAX) NULL,
 						 [AdviserContactNumber] [VARCHAR](MAX) NULL,
 						 [LastModifiedDate] [VARCHAR](MAX) NULL,
-						 [LastModifiedTouchpointId] [VARCHAR](MAX) NULL
+						 [LastModifiedTouchpointId] [VARCHAR](MAX) NULL,
+						 [CreatedBy] [varchar](max) NULL
 			) ON [PRIMARY]									
 		END
 
@@ -48,7 +49,8 @@ BEGIN
 			AdviserEmailAddress VARCHAR(MAX) '$.AdviserEmailAddress',
 			AdviserContactNumber VARCHAR(MAX) '$.AdviserContactNumber',
 			LastModifiedDate VARCHAR(MAX) '$.LastModifiedDate',
-			LastModifiedTouchpointId VARCHAR(MAX) '$.LastModifiedTouchpointId'
+			LastModifiedTouchpointId VARCHAR(MAX) '$.LastModifiedTouchpointId',
+			CreatedBy VARCHAR(MAX) '$.CreatedBy'
 			) AS Coll
 
 	
@@ -66,6 +68,7 @@ BEGIN
 						 [AdviserContactNumber] [VARCHAR](MAX) NULL,
 						 [LastModifiedDate] DATETIME2 NULL,
 						 [LastModifiedTouchpointId] [VARCHAR](MAX) NULL,
+						 [CreatedBy] [VARCHAR](MAX) NULL,
 						 CONSTRAINT [PK_dss-adviserdetails] PRIMARY KEY ([id])) 
 						 ON [PRIMARY]
 		END
@@ -78,7 +81,8 @@ BEGIN
 				[AdviserEmailAddress],
 				[AdviserContactNumber],
 				CONVERT(datetime2, [LastModifiedDate]) as [LastModifiedDate],
-				[LastModifiedTouchpointId]
+				[LastModifiedTouchpointId],
+				[CreatedBy]
 				FROM #adviserdetails
 		
 		DROP TABLE #adviserdetails

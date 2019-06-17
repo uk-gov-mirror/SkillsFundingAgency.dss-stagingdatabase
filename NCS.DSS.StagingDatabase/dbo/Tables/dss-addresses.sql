@@ -15,6 +15,7 @@
     [EffectiveTo]              datetime2         NULL,
     [LastModifiedDate]         datetime2         NULL,
     [LastModifiedTouchpointId] VARCHAR (max)     NULL, 
+	[CreatedBy]				   VARCHAR (max)     NULL, 
     CONSTRAINT [PK_dss-addresses] PRIMARY KEY ([id])
 );
 

@@ -41,7 +41,8 @@ BEGIN
 						 [ActionStatus] [varchar](max) NULL,
 						 [PersonResponsible] [varchar](max) NULL,
 						 [LastModifiedDate] [varchar](max) NULL,
-						 [LastModifiedTouchpointId] [varchar](max) NULL
+						 [LastModifiedTouchpointId] [varchar](max) NULL,
+						 [CreatedBy] [varchar](max) NULL
 			) ON [PRIMARY]									
 		END
 
@@ -62,7 +63,8 @@ BEGIN
 			ActionStatus VARCHAR(MAX) '$.ActionStatus',
 			PersonResponsible VARCHAR(MAX) '$.PersonResponsible',
 			LastModifiedDate VARCHAR(MAX) '$.LastModifiedDate',
-			LastModifiedTouchpointId VARCHAR(MAX) '$.LastModifiedTouchpointId'
+			LastModifiedTouchpointId VARCHAR(MAX) '$.LastModifiedTouchpointId',
+			CreatedBy VARCHAR(MAX) '$.CreatedBy'
 			) as Coll
 
 	
@@ -87,6 +89,7 @@ BEGIN
 						 [PersonResponsible] int NULL,
 						 [LastModifiedDate] [varchar](max) NULL,
 						 [LastModifiedTouchpointId] [varchar](max) NULL,
+						 [CreatedBy] [VARCHAR](MAX) NULL,
 						 CONSTRAINT [PK_dss-actions] PRIMARY KEY ([id])) 
 						 ON [PRIMARY]					
 		END
@@ -106,7 +109,8 @@ BEGIN
 				CONVERT(int, [ActionStatus]) as [ActionStatus],
 				CONVERT(int, [PersonResponsible]) as [PersonResponsible],
 				CONVERT(datetime2, [LastModifiedDate]) as [LastModifiedDate],
-				[LastModifiedTouchpointId]
+				[LastModifiedTouchpointId],
+				[CreatedBy]
 				FROM #actions
 
 

@@ -13,6 +13,7 @@
     [PersonResponsible]             INT              NULL,
     [LastModifiedDate]              VARCHAR (max)     NULL,
     [LastModifiedTouchpointId]      VARCHAR (max)     NULL, 
+	[CreatedBy]					    VARCHAR (max)     NULL, 
     CONSTRAINT [PK_dss-actions] PRIMARY KEY ([id])
 );
 

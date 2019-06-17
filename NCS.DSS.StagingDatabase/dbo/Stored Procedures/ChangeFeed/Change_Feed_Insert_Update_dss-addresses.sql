@@ -21,6 +21,7 @@ BEGIN
 				,EffectiveTo DATETIME2
 				,LastModifiedDate DATETIME2
 				,LastModifiedTouchpointId VARCHAR(max)
+				,CreatedBy VARCHAR(MAX)
 				)
 		) AS InputJSON
 		ON (addresses.id = InputJSON.id)
@@ -43,6 +44,7 @@ BEGIN
 				,addresses.EffectiveTo = InputJSON.EffectiveTo
 				,addresses.LastModifiedDate = InputJSON.LastModifiedDate
 				,addresses.LastModifiedTouchpointId = InputJSON.LastModifiedTouchpointId
+				,addresses.CreatedBy = InputJSON.CreatedBy
 	WHEN NOT MATCHED
 		THEN
 			INSERT (
@@ -62,6 +64,7 @@ BEGIN
 				,EffectiveTo
 				,LastModifiedDate
 				,LastModifiedTouchpointId
+				,CreatedBy
 				)
 			VALUES (
 				InputJSON.id
@@ -80,6 +83,7 @@ BEGIN
 				,InputJSON.EffectiveTo
 				,InputJSON.LastModifiedDate
 				,InputJSON.LastModifiedTouchpointId
+				,InputJSON.CreatedBy
 				);
 
 	exec [insert-dss-addresses-history] @Json

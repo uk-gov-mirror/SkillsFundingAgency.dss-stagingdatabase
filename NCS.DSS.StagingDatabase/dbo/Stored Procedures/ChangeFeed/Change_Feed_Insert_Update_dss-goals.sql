@@ -17,6 +17,7 @@ BEGIN
 				,GoalStatus INT
 				,LastModifiedDate DATETIME2
 				,LastModifiedBy VARCHAR(max)
+				,CreatedBy VARCHAR(MAX)
 				)
 		) AS InputJSON
 		ON (goals.id = InputJSON.id)
@@ -35,6 +36,7 @@ BEGIN
 				,goals.GoalStatus = InputJSON.GoalStatus
 				,goals.LastModifiedDate = InputJSON.LastModifiedDate
 				,goals.LastModifiedBy = InputJSON.LastModifiedBy
+				,goals.CreatedBy = InputJSON.CreatedBy
 	WHEN NOT MATCHED
 		THEN
 			INSERT (
@@ -50,6 +52,7 @@ BEGIN
 				,GoalStatus
 				,LastModifiedDate
 				,LastModifiedBy
+				,CreatedBy
 				)
 			VALUES (
 				InputJSON.id
@@ -64,6 +67,7 @@ BEGIN
 				,InputJSON.GoalStatus
 				,InputJSON.LastModifiedDate
 				,InputJSON.LastModifiedBy
+				,InputJSON.CreatedBy
 				);
 
 	exec [dbo].[insert-dss-goals-history] @Json

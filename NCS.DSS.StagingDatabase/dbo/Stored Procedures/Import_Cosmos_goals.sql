@@ -39,7 +39,8 @@ BEGIN
 						 [GoalType] [VARCHAR](MAX) NULL,
 						 [GoalStatus] [VARCHAR](MAX) NULL,						 
 						 [LastModifiedDate] [VARCHAR](MAX) NULL,
-						 [LastModifiedBy] [VARCHAR](MAX) NULL
+						 [LastModifiedBy] [VARCHAR](MAX) NULL,
+						 [CreatedBy] [varchar](max) NULL
 			) ON [PRIMARY]									
 		END
 
@@ -58,7 +59,8 @@ BEGIN
 			GoalType VARCHAR(MAX) '$.GoalType',
 			GoalStatus VARCHAR(MAX) '$.GoalStatus',
 			LastModifiedDate VARCHAR(MAX) '$.LastModifiedDate',
-			LastModifiedBy VARCHAR(MAX) '$.LastModifiedTouchpointId'
+			LastModifiedBy VARCHAR(MAX) '$.LastModifiedTouchpointId',
+			CreatedBy VARCHAR(MAX) '$.CreatedBy'
 			) AS Coll
 
 	IF OBJECT_ID('[dss-goals]', 'U') IS NOT NULL 
@@ -80,6 +82,7 @@ BEGIN
 						 [GoalStatus] INT NULL,						 
 						 [LastModifiedDate] DATETIME2 NULL,
 						 [LastModifiedBy] [VARCHAR](MAX) NULL,
+						 [CreatedBy] [VARCHAR](MAX) NULL,
 						 CONSTRAINT [PK_dss-goals] PRIMARY KEY ([id])) 
 						 ON [PRIMARY]
 		END
@@ -97,7 +100,8 @@ BEGIN
 				CONVERT(int, [GoalType]) as [GoalType],
 				CONVERT(int, [GoalStatus]) as [GoalStatus],
 				CONVERT(datetime2, [LastModifiedDate]) as [LastModifiedDate],
-				[LastModifiedBy]
+				[LastModifiedBy],
+				[CreatedBy]
 				FROM #goals
 
 		DROP TABLE #goals
