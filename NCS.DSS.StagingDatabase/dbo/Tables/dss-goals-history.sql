@@ -12,7 +12,7 @@
 	[GoalType] [int] NULL,
 	[GoalStatus] [int] NULL,
 	[LastModifiedDate] [datetime2](7) NULL,
-	[LastModifiedTouchpointId] [varchar](max) NULL,
+	[LastModifiedBy] [varchar](max) NULL,
  CONSTRAINT [PK_dss-goals-history] PRIMARY KEY CLUSTERED 
 (
 	[HistoryId] ASC,

@@ -151,4 +151,7 @@
   <ItemGroup>
     <RefactorLog Include="NCS.DSS.StagingDatabase.refactorlog" />
   </ItemGroup>
+  <ItemGroup>
+    <PreDeploy Include="Scripts\PreDeployment.sql" />
+  </ItemGroup>
 </Project>
