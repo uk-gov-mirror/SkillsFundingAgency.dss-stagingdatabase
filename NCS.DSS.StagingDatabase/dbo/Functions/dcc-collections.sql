@@ -19,6 +19,27 @@ SET		@today = GETDATE()
 SET		@endDateTime = DATEADD(MS, -1, DATEADD(D, 1, CONVERT(DATETIME2,@endDate)));  
 
 
+with sessionData	-- select ALL relevant records in to a temp table var.
+AS
+(
+	SELECT			 s.id AS 'SessionID'
+					,o.id AS 'OutcomeID'
+					,s.CustomerId AS 'CustomerID'
+					,ap.id AS 'ActionPlanID'
+					,ap.InteractionId as 'InteractionId'
+					,o.OutcomeClaimedDate AS 'OutcomeClaimedDate'
+					,o.OutcomeEffectiveDate AS 'OutcomeEffectiveDate'
+					,Convert(DATE,s.DateandTimeOfSession ) AS 'DateandTimeOfSession'
+					,o.SubcontractorId AS 'SubcontractorID'
+					,o.OutcomeType AS 'OutcomeType'
+					,o.ClaimedPriorityGroup AS 'ClaimedPriorityGroup'
+					,o.TouchpointId AS 'TouchpointID'
+	FROM				[dss-sessions] s
+	INNER JOIN			[dss-actionplans] ap ON ap.SessionId = s.id
+	INNER JOIN			[dss-outcomes] o ON o.ActionPlanId = ap.id
+	WHERE				o.OutcomeClaimedDate IS NOT NULL
+	AND					o.OutcomeEffectiveDate IS NOT NULL
+)
 INSERT INTO @Result
 	SELECT			
 		 CustomerID
@@ -35,63 +56,63 @@ INSERT INTO @Result
 	FROM
 	(
 		SELECT				s.CustomerID									AS 'CustomerID'
-							,s.id									AS 'SessionID'
+							,s.SessionID									AS 'SessionID'
 							,c.DateofBirth									AS 'DateOfBirth'
 							,a.PostCode										AS 'HomePostCode'
-							,ap.id									AS 'ActionPlanId' 
-							,CONVERT(DATE, s.DateandTimeOfSession)			AS 'SessionDate'
+							,s.ActionPlanId  								AS 'ActionPlanId' 
+							,s.DateandTimeOfSession							AS 'SessionDate'
 							,s.SubcontractorID								AS 'SubContractorId' 
 							,adv.AdviserName								AS 'AdviserName'
-							,o.id									AS 'OutcomeID'
-							,o.OutcomeType									AS 'OutcomeType'
-							,o.OutcomeEffectiveDate							AS 'OutcomeEffectiveDate'
-							,IIF(o.ClaimedPriorityGroup < 99, 1, 0)			AS 'OutcomePriorityCustomer'
-							,o.OutcomeClaimedDate							AS 'OutcomeClaimedDate'
+							,s.OutcomeID									AS 'OutcomeID'
+							,s.OutcomeType									AS 'OutcomeType'
+							,s.OutcomeEffectiveDate							AS 'OutcomeEffectiveDate'
+							,IIF(s.ClaimedPriorityGroup < 99, 1, 0)			AS 'OutcomePriorityCustomer'
+							,s.OutcomeClaimedDate							AS 'OutcomeClaimedDate'
 							,SessionClosureDate = 
-								CASE o.OutcomeType
+								CASE s.OutcomeType
 									WHEN 3 THEN	DATEADD(mm, 13, s.DateandTimeOfSession) 
 									ELSE DATEADD(mm, 12, s.DateandTimeOfSession) 
 								END
-							,DATEADD(mm, -12, CONVERT(DATE,s.DateandTimeOfSession)) AS 'PriorSessionDate'		
-							,RANK() OVER(PARTITION BY s.CustomerID, IIF (o.OutcomeType < 3, o.OutcomeType, 3) ORDER BY o.OutcomeEffectiveDate, o.id) AS 'Rank'  -- we rank to remove duplicates
-		FROM				[dss-sessions] s
+							,DATEADD(mm, -12, s.DateandTimeOfSession) AS 'PriorSessionDate'		
+							,RANK() OVER(PARTITION BY s.CustomerID, IIF (s.OutcomeType < 3, s.OutcomeType, 3) ORDER BY s.OutcomeEffectiveDate, s.OutcomeID) AS 'Rank'  -- we rank to remove duplicates
+			FROM			SessionData s
 		INNER JOIN			[dss-customers] c								ON c.id = s.CustomerId
-		INNER JOIN			[dss-actionplans] ap							ON ap.SessionId = s.id
-		INNER JOIN			[dss-interactions] i							ON i.id = ap.InteractionId
-		INNER JOIN			[dss-outcomes] o							ON o.ActionPlanId = ap.id
+		--INNER JOIN			[dss-actionplans] ap							ON ap.id = s.ActionPlanId
+		INNER JOIN			[dss-interactions] i							ON i.id = s.InteractionId
 		OUTER APPLY			(	SELECT TOP 1	PostCode
 								FROM			[dss-addresses] a
 								WHERE			a.CustomerId = s.CustomerId											-- Get the latest address for the customer record
 								AND				@today BETWEEN ISNULL(a.EffectiveFrom, DATEADD(dd,-1,@today)) AND ISNULL(a.EffectiveTo, DATEADD(dd,1,@today))
 							) AS a
 		LEFT JOIN			[dss-adviserdetails] adv ON adv.id = i.AdviserDetailsId									-- join to get adviser details
-		WHERE				o.OutcomeEffectiveDate	BETWEEN @startDate AND @endDateTime								-- effective between period start and end date and time
-		AND					o.OutcomeClaimedDate	BETWEEN @startDate AND @endDateTime								-- claimed between period start and end date and time
-		AND					o.TouchpointID = @touchpointId															-- for the touchpoint requesting the collection
+		WHERE				s.OutcomeEffectiveDate	BETWEEN @startDate AND @endDateTime								-- effective between period start and end date and time
+		AND					s.OutcomeClaimedDate	BETWEEN @startDate AND @endDateTime								-- claimed between period start and end date and time
+		AND					s.TouchpointID = @touchpointId															-- for the touchpoint requesting the collection
 	) o
 	WHERE					o.Rank = 1																				-- only send through 1 of each type of outcome	
-	AND						CONVERT(DATE,o.OutcomeEffectiveDate) <= o.SessionClosureDate											-- within 12 or 13 months of the session date date
+	AND						Convert(DATE,o.OutcomeEffectiveDate) <= o.SessionClosureDate											-- within 12 or 13 months of the session date date
 	AND						NOT EXISTS (
 									SELECT			priorO.id
-									FROM			[dss-sessions]  priorS
-									INNER JOIN		[dss-outcomes] priorO ON priorS.id = priorO.SessionId
-									WHERE			priorO.id <> o.OutcomeID
-									AND				priorO.OutcomeEffectiveDate < o.OutcomeEffectiveDate
+									FROM			SessionData priorS
+									INNER JOIN		[dss-outcomes] priorO ON priorS.OutcomeID = priorO.id
+									WHERE			priorO.OutcomeEffectiveDate < o.OutcomeEffectiveDate
+									AND				priorO.id <> o.OutcomeID
+									AND				priorO.OutcomeEffectiveDate IS NOT NULL		-- ensure the previous outcomes are effective
 									AND				priorO.OutcomeClaimedDate IS NOT NULL		-- and claimed
 									AND				priorO.CustomerId = o.CustomerId			-- and they belong to the same customer
 									AND				priorO.TouchpointId <> '0000000999'			-- and touchpoint is not helpline
-									AND				CONVERT(DATE,priorS.DateandTimeOfSession) >= o.PriorSessionDate	-- and the prior session date is more then 12 months before current session date
+									AND				priorS.DateandTimeOfSession >= Convert(DATE,o.PriorSessionDate)	-- and the prior session date is more then 12/13 months
 									AND				(											-- check validity of the previous outcomes we are considering
 														( 
-															OutcomeType = 3							-- the previous outcome should have been claimed within 13 months of the previous session date for Outcome Type 3
+															priorO.OutcomeType = 3							-- the previous outcome should have been claimed within 13 months of the previous session date for Outcome Type 3
 															AND
-															DATEADD(mm, 13, priorS.DateandTimeOfSession)  >= CONVERT(DATE,priorO.OutcomeEffectiveDate)
+															DATEADD(mm, 13, priorS.DateandTimeOfSession)  >= priorO.OutcomeEffectiveDate 
 														)
 														OR											-- the previous outcome should have been claimed within 12 months of the previous session date for Outcome Types 1,2,4,5
 														(
-															OutcomeType IN ( 1,2,4,5 )			
+															priorO.OutcomeType IN ( 1,2,4,5 )			
 															AND
-															DATEADD(mm, 12, priorS.DateandTimeOfSession)  >= CONVERT(DATE,priorO.OutcomeEffectiveDate)
+															DATEADD(mm, 12, priorS.DateandTimeOfSession)  >= priorO.OutcomeEffectiveDate 
 														)
 													)
 									AND				(
