@@ -50,7 +50,7 @@ BEGIN
 			left join  [dbo].[dss-actionplans] ap on  c.id = ap.CustomerId 
 		WHERE 
 		(
-				cast(ap.DateActionPlanCreated AS DATE) BETWEEN @startDate AND @endDate-- AND ap.CreatedBy <> '0000000999'
+				cast(ap.DateActionPlanCreated AS DATE) BETWEEN @startDate AND @endDate
 				OR CAST(i.DateandTimeOfInteraction AS DATE) BETWEEN @startDate AND @endDate AND i.TouchpointId = '0000000999'
 		)
 	)
@@ -86,26 +86,17 @@ BEGIN
 	INSERT @demographics_nch 
 	SELECT a.group_name,
 			a.group_value,
-			'' as 'touchpoint1',
-			'' as 'touchpoint2',
-			'' as 'touchpoint3',
-			'' as 'touchpoint4',
-			'' as 'touchpoint5',
-			'' as 'touchpoint6',
-			'' as 'touchpoint7',
-			'' as 'touchpoint8',
-			'' as 'touchpoint9',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
+			'',
 			IsNull(cast(g10.count as varchar(10)),'0') as 'touchpoint10'
 	FROM nch_group_base a
-		left join nch_groups g1 on a.group_value = g1.group_value and g1.touchpointId = '0000000101'
-		left join nch_groups g2 on a.group_value = g2.group_value and g2.touchpointId = '0000000102'
-		left join nch_groups g3 on a.group_value = g3.group_value and g3.touchpointId = '0000000103'
-		left join nch_groups g4 on a.group_value = g4.group_value and g4.touchpointId = '0000000104'
-		left join nch_groups g5 on a.group_value = g5.group_value and g5.touchpointId = '0000000105'
-		left join nch_groups g6 on a.group_value = g6.group_value and g6.touchpointId = '0000000106'
-		left join nch_groups g7 on a.group_value = g7.group_value and g7.touchpointId = '0000000107'
-		left join nch_groups g8 on a.group_value = g8.group_value and g8.touchpointId = '0000000108'
-		left join nch_groups g9 on a.group_value = g9.group_value and g9.touchpointId = '0000000109'
 		left join nch_groups g10 on a.group_value = g10.group_value and g10.touchpointId = '0000000999' 
 
 		RETURN
