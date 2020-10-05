@@ -64,9 +64,11 @@ where c.id = rk.id
 AND rd.name = 'PriorityCustomer' 
 AND rd.value = pg.PriorityGroup
 ), dbo.udf_GetReferenceDataValue('ActionPlans','PriorityCustomer', rk.PriorityCustomer, ''))
-, DupeRowCount
+--, DupeRowCount
 --'Priority Group' = dbo.udf_GetReferenceDataValue('ActionPlans','PriorityCustomer', rk.PriorityCustomer, '')
-, prev_actionplans, prev_interactions
+--, prev_actionplans
+, rk.DateandTimeOfInteraction
+, rk.DateActionPlanCreated
 	from 
 	(
 			SELECT
@@ -98,10 +100,10 @@ AND rd.value = pg.PriorityGroup
 				,ap.PriorityCustomer
 				,ap.DateActionPlanCreated
 				, (select count(1) from [dss-interactions] i2 where i2.CustomerId = i.CustomerId and i2.DateAndTimeOfInteraction > DATEADD(month, -3,  @startDate) AND i2.DateAndTimeOfInteraction < @startDate ) as prev_interactions -- Only report on a customer every 3 months
-				, (select count(1) from [dss-actionplans] ap2 where ap2.CustomerId = i.CustomerId and ap2.DateActionPlanCreated > DATEADD(month, -3,  @startDate) AND  ap2.DateActionPlanCreated < @startDate  ) as prev_actionplans
+				--, (select count(1) from [dss-actionplans] ap2 where ap2.CustomerId = i.CustomerId and ap2.DateActionPlanCreated > DATEADD(month, -3,  @startDate) AND  ap2.DateActionPlanCreated < @startDate  ) as prev_actionplans
 				--, rank () over (partition by c.id, i.id order by iif(ap.id is not null, 1,2 ), i.DateandTimeOfInteraction, i.LastModifiedDate, i.id ) ro  --make sure action plans are considered first and duplcates are excluded
 				--, rank () over (partition by ap.id order by ap.DateActionPlanCreated asc) ro  --make sure action plans are considered first and duplcates are excluded
-				, ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY c.id, i.DateAndTimeOfInteraction,  ap.DateActionPlanCreated) AS DupeRowCount
+				--, ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY c.id, i.DateAndTimeOfInteraction,  ap.DateActionPlanCreated) AS DupeRowCount
 			FROM        [dss-customers] c
 			LEFT JOIN	[dss-prioritygroups] pg on c.id = pg.CustomerId
 			LEFT JOIN   [dss-contacts] con ON con.CustomerId = c.id
@@ -112,13 +114,60 @@ AND rd.value = pg.PriorityGroup
 			LEFT JOIN   [dss-actionplans] ap ON ap.CustomerId = c.id
 			INNER JOIN  [dss-interactions] i ON i.CustomerId = c.id
 
-			LEFT JOIN   [dss-sessions] s ON s.id = ap.SessionId OR i.id = s.InteractionId
+			LEFT JOIN   [dss-sessions] s ON s.id = ap.SessionId --OR i.id = s.InteractionId
 			WHERE       c.OptInMarketResearch = 1 -- true
 			AND         COALESCE(c.ReasonForTermination, 0) NOT IN (1,2)
 			AND         (ap.DateActionPlanCreated BETWEEN @startDate AND @endDate
 			OR         i.DateandTimeOfInteraction BETWEEN @startDate AND @endDate)
-			--Take this out
-			--AND         ( ap.id is not null AND ap.DateActionPlanCreated is not null )
+UNION 
+			SELECT
+				  c.id
+				, c.GivenName                                   
+				, c.FamilyName                                  
+				,con.PreferredContactMethod
+				,con.HomeNumber
+				,con.MobileNumber
+				,con.AlternativeNumber
+				,a.PostCode
+				,con.EmailAddress
+				,c.DateofBirth
+				,d.PrimaryLearningDifficultyOrDisability
+				,d.SecondaryLearningDifficultyOrDisability
+				,d.Ethnicity
+				,c.Gender
+				,ap.id as ActionPlanId
+				,ap.CreatedBy
+				,COALESCE(ap.LastModifiedTouchpointId,i.LastModifiedTouchpointId) as LastModifiedTouchpointId
+				,ap.SubcontractorId
+				,ep.CurrentEmploymentStatus
+				,ep.LengthOfUnemployment
+				,lp.CurrentLearningStatus
+				,lp.CurrentQualificationLevel
+				,i.Channel
+				,i.DateandTimeOfInteraction
+				,s.DateandTimeOfSession
+				,ap.PriorityCustomer
+				,ap.DateActionPlanCreated
+				, (select count(1) from [dss-interactions] i2 where i2.CustomerId = i.CustomerId and i2.DateAndTimeOfInteraction > DATEADD(month, -3,  @startDate) AND i2.DateAndTimeOfInteraction < @startDate ) as prev_interactions -- Only report on a customer every 3 months
+				--, (select count(1) from [dss-actionplans] ap2 where ap2.CustomerId = i.CustomerId and ap2.DateActionPlanCreated > DATEADD(month, -3,  @startDate) AND  ap2.DateActionPlanCreated < @startDate  ) as prev_actionplans
+				--, rank () over (partition by c.id, i.id order by iif(ap.id is not null, 1,2 ), i.DateandTimeOfInteraction, i.LastModifiedDate, i.id ) ro  --make sure action plans are considered first and duplcates are excluded
+				--, rank () over (partition by ap.id order by ap.DateActionPlanCreated asc) ro  --make sure action plans are considered first and duplcates are excluded
+				--, ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY c.id, i.DateAndTimeOfInteraction,  ap.DateActionPlanCreated) AS DupeRowCount
+			FROM        [dss-customers] c
+			LEFT JOIN	[dss-prioritygroups] pg on c.id = pg.CustomerId
+			LEFT JOIN   [dss-contacts] con ON con.CustomerId = c.id
+			LEFT JOIN   [dss-addresses] a ON a.CustomerId = c.Id
+			LEFT JOIN   [dss-diversitydetails] d ON d.CustomerId = c.Id
+			LEFT JOIN   [dss-employmentprogressions] ep on ep.CustomerId = c.id
+			LEFT JOIN   [dss-learningprogressions] lp on lp.CustomerId = c.id
+			LEFT JOIN   [dss-actionplans] ap ON ap.CustomerId = c.id
+			INNER JOIN  [dss-interactions] i ON i.CustomerId = c.id
+
+			LEFT JOIN   [dss-sessions] s ON  i.id = s.InteractionId
+			WHERE       c.OptInMarketResearch = 1 -- true
+			AND         COALESCE(c.ReasonForTermination, 0) NOT IN (1,2)
+			AND         (ap.DateActionPlanCreated BETWEEN @startDate AND @endDate
+			OR         i.DateandTimeOfInteraction BETWEEN @startDate AND @endDate)
 
 
 
@@ -133,9 +182,14 @@ AND rd.value = pg.PriorityGroup
 		)
 
 		)
+		, FilterTable AS
+		(
+			SELECT *,  ROW_NUMBER() OVER (PARTITION BY [Customer ID] ORDER BY [Customer ID], DateAndTimeOfInteraction,  DateActionPlanCreated) 
+			AS DupeRowCount FROM OriginalTable
+		)
 		, TempTable AS
 		(
-			SELECT * FROM OriginalTable WHERE DupeRowCount = 1 -- exclude dupes
+			SELECT *  FROM FilterTable WHERE DupeRowCount = 1 -- exclude dupes
 		)
 
 		SELECT [Customer ID], [Given Name], [Family Name], [Primary Phone Number], [Alternative Phone Number], Postcode, [Contact Email],
