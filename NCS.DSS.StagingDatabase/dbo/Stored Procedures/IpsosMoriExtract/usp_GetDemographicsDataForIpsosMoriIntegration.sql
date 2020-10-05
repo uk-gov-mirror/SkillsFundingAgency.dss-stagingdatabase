@@ -51,7 +51,8 @@ BEGIN
 				left join [dbo].[dss-employmentprogressions] ep ON ep.CustomerId = c.id 
 		WHERE c.OptInMarketResearch = 1 -- true
 			AND         COALESCE(c.ReasonForTermination, 0) NOT IN (1,2)
-			AND         COALESCE(ap.DateActionPlanCreated,i.DateandTimeOfInteraction) BETWEEN @startDate AND @endDate
+			AND         (ap.DateActionPlanCreated BETWEEN @startDate AND @endDate
+			OR         i.DateandTimeOfInteraction BETWEEN @startDate AND @endDate)
 			--(
 			--	cast(ap.DateActionPlanCreated AS DATE) BETWEEN @startDate AND @endDate-- AND ap.CreatedBy <> '0000000999'
 			--	OR CAST(i.DateandTimeOfInteraction AS DATE) BETWEEN @startDate AND @endDate AND i.TouchpointId = '0000000999'
